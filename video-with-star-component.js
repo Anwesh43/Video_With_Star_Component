@@ -1,4 +1,5 @@
 const w = window.innerWidth,h = window.innerHeight
+const star_size = Math.max(w,h)/30)
 const getPointInCircle = (r,deg) => {
     return {x:r*Math.cos(deg*Math.PI/180),y:r*Math.sin(deg*Math.PI/180)}
 }
@@ -48,7 +49,7 @@ class Star {
         this.size = size
         this.rot = 0
     }
-    draw() {
+    draw(context) {
         context.save()
         context.globalAlpha = 0.6
         context.translate(this.x,this.y)
@@ -80,5 +81,42 @@ class Star {
     }
     handleTap(x,y) {
         return x>=this.x -this.size/2 && x<=this.x+this.size/2 && y>=this.y -this.size/2 && y<=this.y+this.size/2
+    }
+}
+class StarContainer {
+    constructor() {
+        this.stars = []
+        this.render = 0
+    }
+    createStars() {
+        if(this.render % 15 == 0) {
+            const x_min = star_size
+            const x_max = w - star_size
+            const x_random = x_min+Math.random()*(x_max-x_min)
+            const star = new Star(0,0,star_size)
+            this.stars.push(star)
+        }
+        this.render ++
+    }
+    draw(context) {
+        context.fillStyle = '#ffc107'
+        this.stars.forEach((star)=>{
+            star.draw(context)
+        })
+    }
+    update() {
+        this.stars.forEach((star,index)=>{
+            star.update()
+            if(star.y > h) {
+                this.stars.splice(index,1)
+            }
+        })
+    }
+    handleTap(x,y) {
+        this.stars.handleTap((star,index)=>{
+            if(star.handleTap(x,y)) {
+                this.stars.splice(index,1)
+            }
+        })
     }
 }
