@@ -1,11 +1,12 @@
 const w = window.innerWidth,h = window.innerHeight
-const star_size = Math.max(w,h)/30)
+const star_size = Math.max(w,h)/30
 const getPointInCircle = (r,deg) => {
     return {x:r*Math.cos(deg*Math.PI/180),y:r*Math.sin(deg*Math.PI/180)}
 }
 class VideoWithStarComponent extends HTMLElement {
       constructor() {
           super()
+          this.starContainer = new StarContainer()
           const shadow = this.attachShadow({mode:'open'})
           this.img = document.createElement('img')
           shadow.appendChild(this.img)
@@ -17,6 +18,9 @@ class VideoWithStarComponent extends HTMLElement {
           const context = canvas.getContext('2d')
           context.globalAlpha = 1
           context.drawImage(this.video,0,0,w,h)
+          this.starContainer.draw(context)
+          this.starContainer.createStars()
+          this.starContainer.update()
           this.img.src = canvas.toDataURL()
       }
       connectedCallback() {
@@ -41,7 +45,7 @@ class VideoWithStarComponent extends HTMLElement {
           window.requestAnimationFrame(this.renderVideoContinuously.bind(this))
       }
 }
-customElements.define('video-with-stars-comp',VideoWithStarComponent)
+
 class Star {
     constructor(x,y,size) {
         this.x = x
@@ -50,6 +54,9 @@ class Star {
         this.rot = 0
     }
     draw(context) {
+        console.log(this.x)
+        console.log(this.y)
+        const size = this.size
         context.save()
         context.globalAlpha = 0.6
         context.translate(this.x,this.y)
@@ -76,7 +83,7 @@ class Star {
     }
     update() {
         const speed = 20
-        this.y += this.h/speed
+        this.y += h/speed
         this.rot += 360/speed
     }
     handleTap(x,y) {
@@ -93,7 +100,7 @@ class StarContainer {
             const x_min = star_size
             const x_max = w - star_size
             const x_random = x_min+Math.random()*(x_max-x_min)
-            const star = new Star(0,0,star_size)
+            const star = new Star(x_random,0,star_size)
             this.stars.push(star)
         }
         this.render ++
@@ -120,3 +127,4 @@ class StarContainer {
         })
     }
 }
+customElements.define('video-with-stars-comp',VideoWithStarComponent)
