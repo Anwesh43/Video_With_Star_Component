@@ -1,5 +1,5 @@
 const w = window.innerWidth,h = window.innerHeight
-const star_size = Math.max(w,h)/30
+const star_size = Math.max(w,h)/15
 const getPointInCircle = (r,deg) => {
     return {x:r*Math.cos(deg*Math.PI/180),y:r*Math.sin(deg*Math.PI/180)}
 }
@@ -45,6 +45,10 @@ class VideoWithStarComponent extends HTMLElement {
       }
       connectedCallback() {
           this.createVideo()
+          this.img.onmousedown = (event) => {
+              const x = event.offsetX,y = event.offsetY
+              this.starContainer.handleTap(x,y)
+          }
       }
       createVideo() {
           window.navigator.getUserMedia = window.navigator.getUserMedia || window.navigator.webkitGetUserMedia || window.navigator.mozGetUserMedia || window.navigator.oGetUserMedia
@@ -70,11 +74,9 @@ class Star {
         this.rot = 0
     }
     draw(context) {
-        console.log(this.x)
-        console.log(this.y)
         const size = this.size
         context.save()
-        context.globalAlpha = 0.6
+        context.globalAlpha = 0.5
         context.translate(this.x,this.y)
         context.rotate(this.rot)
         var deg = -90
@@ -98,12 +100,12 @@ class Star {
         context.restore()
     }
     update() {
-        const speed = 20
+        const speed = 25
         this.y += h/speed
         this.rot += 360/speed
     }
     handleTap(x,y) {
-        return x>=this.x -this.size/2 && x<=this.x+this.size/2 && y>=this.y -this.size/2 && y<=this.y+this.size/2
+        return x>=this.x -this.size && x<=this.x+this.size && y>=this.y -this.size && y<=this.y+this.size
     }
 }
 class StarContainer {
@@ -112,7 +114,7 @@ class StarContainer {
         this.render = 0
     }
     createStars() {
-        if(this.render % 15 == 0) {
+        if(this.render % 5 == 0) {
             const x_min = star_size
             const x_max = w - star_size
             const x_random = x_min+Math.random()*(x_max-x_min)
@@ -122,7 +124,7 @@ class StarContainer {
         this.render ++
     }
     draw(context) {
-        context.fillStyle = '#ffc107'
+        context.fillStyle = '#f44336'
         this.stars.forEach((star)=>{
             star.draw(context)
         })
@@ -136,8 +138,11 @@ class StarContainer {
         })
     }
     handleTap(x,y) {
-        this.stars.handleTap((star,index)=>{
+        console.log(x)
+        console.log(y)
+        this.stars.forEach((star,index)=>{
             if(star.handleTap(x,y)) {
+                console.log("remove")
                 this.stars.splice(index,1)
             }
         })
