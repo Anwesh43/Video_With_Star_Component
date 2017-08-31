@@ -13,9 +13,7 @@ class VideoWithStarComponent extends HTMLElement {
           const context = canvas.getContext('2d')
           context.globalAlpha = 1
           context.drawImage(this.video,0,0,w,h)
-          context.globalAlpha = 0.5
-          context.fillStyle = 'red'
-          context.fillRect(0,0,w,h)
+
           this.img.src = canvas.toDataURL()
       }
       connectedCallback() {
@@ -29,10 +27,15 @@ class VideoWithStarComponent extends HTMLElement {
           window.navigator.getUserMedia = window.navigator.getUserMedia || window.navigator.webkitGetUserMedia || window.navigator.mozGetUserMedia || window.navigator.oGetUserMedia
           window.navigator.getUserMedia({audio:false,video:true},(stream)=>{
               this.video.src = window.URL.createObjectURL(stream)
-              this.render()
+              this.renderVideoContinuously()
           },(err)=>{
               alert(err)
           })
+      }
+      renderVideoContinuously() {
+          this.render()
+          window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame
+          window.requestAnimationFrame(this.renderVideoContinuously.bind(this))
       }
 }
 customElements.define('video-with-stars-comp',VideoWithStarComponent)
