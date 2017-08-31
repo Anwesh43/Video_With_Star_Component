@@ -9,7 +9,24 @@ class VideoWithStarComponent extends HTMLElement {
           this.starContainer = new StarContainer()
           const shadow = this.attachShadow({mode:'open'})
           this.img = document.createElement('img')
+          this.video = document.createElement('video')
+          this.setSomeVideoParams()
+          this.adjustPosition()
+          shadow.appendChild(this.video)
           shadow.appendChild(this.img)
+      }
+      setSomeVideoParams() {
+        this.video.autoplay = true
+        this.video.width = w
+        this.video.height = h
+      }
+      adjustPosition() {
+          this.video.style.position = 'absolute'
+          this.video.style.top = 0
+          this.video.style.left = 0
+          this.img.style.position = 'absolute'
+          this.img.style.top = 0
+          this.img.style.left = 0
       }
       render() {
           const canvas = document.createElement('canvas')
@@ -17,7 +34,10 @@ class VideoWithStarComponent extends HTMLElement {
           canvas.height = h
           const context = canvas.getContext('2d')
           context.globalAlpha = 1
-          context.drawImage(this.video,0,0,w,h)
+          context.save()
+          context.globalAlpha = 0
+          context.fillRect(0,0,w,h)
+          context.restore()
           this.starContainer.draw(context)
           this.starContainer.createStars()
           this.starContainer.update()
@@ -27,12 +47,8 @@ class VideoWithStarComponent extends HTMLElement {
           this.createVideo()
       }
       createVideo() {
-          this.video = document.createElement('video')
-          this.video.autoplay = true
-          this.video.width = w
-          this.video.height = h
           window.navigator.getUserMedia = window.navigator.getUserMedia || window.navigator.webkitGetUserMedia || window.navigator.mozGetUserMedia || window.navigator.oGetUserMedia
-          window.navigator.getUserMedia({audio:false,video:true},(stream)=>{
+          window.navigator.getUserMedia({audio:false,video:{width:w,height:h}},(stream)=>{
               this.video.src = window.URL.createObjectURL(stream)
               this.renderVideoContinuously()
           },(err)=>{
